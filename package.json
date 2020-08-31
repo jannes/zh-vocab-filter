@@ -1,5 +1,5 @@
 {
-  "name": "zv-vocab-filter",
+  "name": "zh-vocab-filter",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -21,15 +21,17 @@
     "@angular/router": "~10.0.6",
     "rxjs": "~6.5.5",
     "tslib": "^2.0.0",
+    "typescript": "^3.9.7",
     "zone.js": "~0.10.3"
   },
   "devDependencies": {
+    "@angular-builders/custom-webpack": "^10.0.0",
     "@angular-devkit/build-angular": "~0.1000.5",
     "@angular/cli": "~10.0.5",
     "@angular/compiler-cli": "~10.0.6",
-    "@types/node": "^12.11.1",
     "@types/jasmine": "~3.5.0",
     "@types/jasminewd2": "~2.0.3",
+    "@types/node": "^12.11.1",
     "codelyzer": "^6.0.0",
     "jasmine-core": "~3.5.0",
     "jasmine-spec-reporter": "~5.0.0",
@@ -38,9 +40,11 @@
     "karma-coverage-istanbul-reporter": "~3.0.2",
     "karma-jasmine": "~3.3.0",
     "karma-jasmine-html-reporter": "^1.5.0",
+    "postcss-import": "^12.0.1",
+    "postcss-loader": "^3.0.0",
     "protractor": "~7.0.0",
+    "tailwindcss": "^1.6.2",
     "ts-node": "~8.3.0",
-    "tslint": "~6.1.0",
-    "typescript": "~3.9.5"
+    "tslint": "~6.1.0"
   }
 }
