@@ -27,7 +27,11 @@ function getFileFromUser(): void {
 }
 
 function appendSaveToFile(filepath: string, lines: string[]) {
-  console.log(`saving: ${lines} to file: ${filepath}`);
+  fs.appendFile(filepath, lines.join('\n') + '\n', (err) => {
+    if (err) {
+      console.log('something went wrong saving the file');
+    }
+  });
 }
 
 function createWindow(): BrowserWindow {

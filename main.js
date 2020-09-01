@@ -15,7 +15,6 @@ var win = null;
 var args = process.argv.slice(1), serve = args.some(function (val) { return val === '--serve'; });
 // open file, read as string and send to file service
 function getFileFromUser() {
-    console.log('getting file');
     var filesPromise = electron_1.dialog.showOpenDialog(win, {
         properties: ['openFile'],
         filters: [
@@ -29,12 +28,15 @@ function getFileFromUser() {
         var filepath = dialogReturn.filePaths[0];
         console.log(filepath);
         var content = fs.readFileSync(filepath).toString();
-        console.log(content);
         win.webContents.send('getFile', filepath, content);
     });
 }
 function appendSaveToFile(filepath, lines) {
-    console.log("saving: " + lines + " to file: " + filepath);
+    fs.appendFile(filepath, lines.join('\n') + '\n', function (err) {
+        if (err) {
+            console.log('something went wrong saving the file');
+        }
+    });
 }
 function createWindow() {
     var electronScreen = electron_1.screen;
@@ -130,7 +132,7 @@ try {
             createWindow();
         }
     });
-    electron_1.ipcMain.on("append-save", function (event, filepath, lines) {
+    electron_1.ipcMain.on('save-append', function (event, filepath, lines) {
         appendSaveToFile(filepath, lines);
     });
 }
