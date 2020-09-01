@@ -1,13 +1,36 @@
-import { app, BrowserWindow, screen } from 'electron';
+import {app, BrowserWindow, Menu, MenuItem, screen, dialog, ipcMain} from 'electron';
 import * as path from 'path';
 import * as url from 'url';
+import * as fs from "fs";
 
 let win: BrowserWindow = null;
 const args = process.argv.slice(1),
   serve = args.some(val => val === '--serve');
 
-function createWindow(): BrowserWindow {
+// open file, read as string and send to file service
+function getFileFromUser(): void {
+  const filesPromise = dialog.showOpenDialog(win, {
+    properties: ['openFile'],
+    filters: [
+      {name: 'Text Files', extensions: ['txt']}
+    ]
+  });
+  filesPromise.then((dialogReturn) => {
+    if (dialogReturn.canceled) {
+      return;
+    }
+    const filepath = dialogReturn.filePaths[0];
+    console.log(filepath);
+    const content = fs.readFileSync(filepath).toString();
+    win.webContents.send('getFile', filepath, content);
+  });
+}
 
+function appendSaveToFile(filepath: string, lines: string[]) {
+  console.log(`saving: ${lines} to file: ${filepath}`);
+}
+
+function createWindow(): BrowserWindow {
   const electronScreen = screen;
   const size = electronScreen.getPrimaryDisplay().workAreaSize;
 
@@ -20,16 +43,57 @@ function createWindow(): BrowserWindow {
     webPreferences: {
       nodeIntegration: true,
       allowRunningInsecureContent: (serve) ? true : false,
-      enableRemoteModule : false // true if you want to use remote module in renderer context (ie. Angular)
+      enableRemoteModule: false // true if you want to use remote module in renderer context (ie. Angular)
     },
   });
+
+  const isMac = process.platform === 'darwin'
+
+  const template = [
+    ...(isMac ? [{
+      label: app.name,
+      submenu: [
+        {role: 'about'},
+        {type: 'separator'},
+        {role: 'services'},
+        {type: 'separator'},
+        {role: 'hide'},
+        {role: 'hideothers'},
+        {role: 'unhide'},
+        {type: 'separator'},
+        {role: 'quit'}
+      ]
+    }] : []),
+    {
+      label: 'File',
+      submenu: [
+        {
+          label: 'Open',
+          accelerator: 'CommandOrControl+O',
+          click() {
+            getFileFromUser();
+          }
+        },
+        {
+          label: 'Save',
+          role: 'save'
+        }
+      ]
+    },
+  ]
+
+  // @ts-ignore
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu)
 
   if (serve) {
 
     win.webContents.openDevTools();
 
     require('electron-reload')(__dirname, {
-      electron: require(`${__dirname}/node_modules/electron`)
+      electron: require(
+        `${__dirname}/node_modules/electron`
+      )
     });
     win.loadURL('http://localhost:4200');
 
@@ -74,6 +138,10 @@ try {
     if (win === null) {
       createWindow();
     }
+  });
+
+  ipcMain.on('save-append', (event, filepath, lines) => {
+    appendSaveToFile(filepath, lines);
   });
 
 } catch (e) {

@@ -1,6 +1,10 @@
-import {HostListener, Component} from '@angular/core';
+import {HostListener, Component, ViewChild, ChangeDetectorRef} from '@angular/core';
 import {ElectronService} from "./core/services"
 import {AppConfig} from '../environments/environment';
+import {FileService} from "./file.service"
+import {WordDisplayComponent} from "./word-display/word-display.component"
+
+const SAVE_MESSAGE = 'ENTER to save';
 
 @Component({
   selector: 'app-root',
@@ -8,19 +12,18 @@ import {AppConfig} from '../environments/environment';
 })
 export class AppComponent {
   title = 'zv-vocab-filter';
-  words = ['王耐衡', '王诗文'];
   i = 0;
-  currentWord: string;
+  words = [];
   wordsToStudy: string[];
   wordsToNotStudy: string[];
   wordsToIgnore: string[];
 
-  constructor(private electronService: ElectronService) {
-    this.currentWord = this.words[this.i];
-    this.wordsToStudy = [];
-    this.wordsToNotStudy = [];
-    this.wordsToIgnore = [];
+  @ViewChild(WordDisplayComponent)
+  private wordDisplayComponent;
 
+  constructor(private electronService: ElectronService,
+              private fileService: FileService,
+              private cdr: ChangeDetectorRef) {
     console.log('AppConfig', AppConfig);
 
     if (electronService.isElectron) {
@@ -33,26 +36,50 @@ export class AppComponent {
     }
   }
 
+  ngOnInit() {
+    this.fileService.content.subscribe((contents) => {
+      console.log('getting file event');
+      if (contents != null) {
+        console.log(`getting file contents: ${contents}`);
+        this.words = contents
+          .split('\n')
+          .map(word => word.trim())
+          .filter(word => word.length > 0);
+        this.wordsToStudy = [];
+        this.wordsToNotStudy = [];
+        this.wordsToIgnore = [];
+        this.i = 0;
+        if (this.words.length > 0) {
+          this.wordDisplayComponent.currentWord = this.words[0];
+          this.cdr.detectChanges();
+        }
+      }
+    });
+  }
+
   @HostListener('window:keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent) {
     console.log(`pressed key ${event.key}`);
     if (this.i >= this.words.length) {
-      this.currentWord = 'DONE';
+      if (event.key === 'Enter' && this.wordDisplayComponent.currentWord === SAVE_MESSAGE) {
+        this.wordDisplayComponent.currentWord = '';
+        this.fileService.saveForCurrentFile(this.wordsToStudy, this.wordsToIgnore);
+      }
       return;
     }
     switch (event.key) {
       case 'j': {
-        this.wordsToStudy.push(this.currentWord);
+        this.wordsToStudy.push(this.wordDisplayComponent.currentWord);
         this.updateCurrentWord();
         break;
       }
       case 'k': {
-        this.wordsToNotStudy.push(this.currentWord);
+        this.wordsToNotStudy.push(this.wordDisplayComponent.currentWord);
         this.updateCurrentWord();
         break;
       }
       case 'l': {
-        this.wordsToIgnore.push(this.currentWord);
+        this.wordsToIgnore.push(this.wordDisplayComponent.currentWord);
         this.updateCurrentWord();
         break;
       }
@@ -62,9 +89,9 @@ export class AppComponent {
   updateCurrentWord() {
     this.i += 1;
     if (this.i >= this.words.length) {
-      this.currentWord = 'DONE';
+      this.wordDisplayComponent.currentWord = SAVE_MESSAGE;
     } else {
-      this.currentWord = this.words[this.i];
+      this.wordDisplayComponent.currentWord = this.words[this.i];
     }
   }
 

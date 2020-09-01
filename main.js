@@ -1,10 +1,41 @@
 "use strict";
+var __spreadArrays = (this && this.__spreadArrays) || function () {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var electron_1 = require("electron");
 var path = require("path");
 var url = require("url");
+var fs = require("fs");
 var win = null;
 var args = process.argv.slice(1), serve = args.some(function (val) { return val === '--serve'; });
+// open file, read as string and send to file service
+function getFileFromUser() {
+    console.log('getting file');
+    var filesPromise = electron_1.dialog.showOpenDialog(win, {
+        properties: ['openFile'],
+        filters: [
+            { name: 'Text Files', extensions: ['txt'] }
+        ]
+    });
+    filesPromise.then(function (dialogReturn) {
+        if (dialogReturn.canceled) {
+            return;
+        }
+        var filepath = dialogReturn.filePaths[0];
+        console.log(filepath);
+        var content = fs.readFileSync(filepath).toString();
+        console.log(content);
+        win.webContents.send('getFile', filepath, content);
+    });
+}
+function appendSaveToFile(filepath, lines) {
+    console.log("saving: " + lines + " to file: " + filepath);
+}
 function createWindow() {
     var electronScreen = electron_1.screen;
     var size = electronScreen.getPrimaryDisplay().workAreaSize;
@@ -20,6 +51,41 @@ function createWindow() {
             enableRemoteModule: false // true if you want to use remote module in renderer context (ie. Angular)
         },
     });
+    var isMac = process.platform === 'darwin';
+    var template = __spreadArrays((isMac ? [{
+            label: electron_1.app.name,
+            submenu: [
+                { role: 'about' },
+                { type: 'separator' },
+                { role: 'services' },
+                { type: 'separator' },
+                { role: 'hide' },
+                { role: 'hideothers' },
+                { role: 'unhide' },
+                { type: 'separator' },
+                { role: 'quit' }
+            ]
+        }] : []), [
+        {
+            label: 'File',
+            submenu: [
+                {
+                    label: 'Open',
+                    accelerator: 'CommandOrControl+O',
+                    click: function () {
+                        getFileFromUser();
+                    }
+                },
+                {
+                    label: 'Save',
+                    role: 'save'
+                }
+            ]
+        },
+    ]);
+    // @ts-ignore
+    var menu = electron_1.Menu.buildFromTemplate(template);
+    electron_1.Menu.setApplicationMenu(menu);
     if (serve) {
         win.webContents.openDevTools();
         require('electron-reload')(__dirname, {
@@ -63,6 +129,9 @@ try {
         if (win === null) {
             createWindow();
         }
+    });
+    electron_1.ipcMain.on("append-save", function (event, filepath, lines) {
+        appendSaveToFile(filepath, lines);
     });
 }
 catch (e) {
