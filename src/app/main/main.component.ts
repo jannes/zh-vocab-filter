@@ -68,6 +68,10 @@ export class MainComponent implements OnInit {
         this.updateCurrentWord();
         break;
       }
+      case 'u': {
+        this.performUndo();
+        break;
+      }
     }
   }
 
@@ -77,6 +81,21 @@ export class MainComponent implements OnInit {
       this.wordDisplayComponent.currentWord = SAVE_MESSAGE;
     } else {
       this.wordDisplayComponent.currentWord = this.words[this.i];
+    }
+  }
+
+  performUndo() {
+    if (this.i > 0) {
+      this.i -= 1;
+      const wordToUndo = this.words[this.i];
+      this.wordDisplayComponent.currentWord = wordToUndo;
+      if (this.wordsToStudy[this.wordsToStudy.length - 1] == wordToUndo) {
+        this.wordsToStudy.pop();
+      } else if (this.wordsToNotStudy[this.wordsToNotStudy.length - 1] == wordToUndo) {
+        this.wordsToNotStudy.pop();
+      } else if (this.wordsToIgnore[this.wordsToIgnore.length - 1] == wordToUndo) {
+        this.wordsToIgnore.pop();
+      }
     }
   }
 }

@@ -77,10 +77,6 @@ function createWindow() {
                     click: function () {
                         getFileFromUser();
                     }
-                },
-                {
-                    label: 'Save',
-                    role: 'save'
                 }
             ]
         },

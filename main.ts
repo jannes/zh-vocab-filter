@@ -77,10 +77,6 @@ function createWindow(): BrowserWindow {
           click() {
             getFileFromUser();
           }
-        },
-        {
-          label: 'Save',
-          role: 'save'
         }
       ]
     },
