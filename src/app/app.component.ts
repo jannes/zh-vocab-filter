@@ -1,12 +1,11 @@
 import {Component} from '@angular/core';
-import {ElectronService} from "./core/services"
+import {ElectronService} from './services';
 import {AppConfig} from '../environments/environment';
 
 
 @Component({
   selector: 'app-root',
-  template: `
-    <router-outlet></router-outlet>`
+  templateUrl: './app.component.html'
 })
 export class AppComponent {
   constructor(private electronService: ElectronService) {
@@ -14,7 +13,7 @@ export class AppComponent {
 
     if (electronService.isElectron) {
       console.log(process.env);
-      console.log('Run in electron');
+      console.log('Run in Electron');
       console.log('Electron ipcRenderer', this.electronService.ipcRenderer);
       console.log('NodeJS childProcess', this.electronService.childProcess);
     } else {

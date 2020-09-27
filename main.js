@@ -18,7 +18,7 @@ function getFileFromUser() {
     var filesPromise = electron_1.dialog.showOpenDialog(win, {
         properties: ['openFile'],
         filters: [
-            { name: 'Text Files', extensions: ['txt'] }
+            { name: 'JSON Files', extensions: ['json'] }
         ]
     });
     filesPromise.then(function (dialogReturn) {

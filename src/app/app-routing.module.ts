@@ -1,8 +1,15 @@
 import {NgModule} from '@angular/core';
 import {Routes, RouterModule} from '@angular/router';
-import {MainComponent} from "./main/main.component"
+import {BookComponent} from './components/book/book.component';
+import {ChapterComponent} from './components/chapter/chapter.component';
+import { StartComponent } from './components/start/start.component';
 
-const routes: Routes = [{path: '', component: MainComponent}];
+const routes: Routes = [
+  {path: '', component: StartComponent},
+  {path: 'start', component: StartComponent},
+  {path: 'overview', component: BookComponent},
+  {path: 'filter', component: ChapterComponent}
+];
 
 @NgModule({
   imports: [

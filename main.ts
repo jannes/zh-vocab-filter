@@ -12,7 +12,7 @@ function getFileFromUser(): void {
   const filesPromise = dialog.showOpenDialog(win, {
     properties: ['openFile'],
     filters: [
-      {name: 'Text Files', extensions: ['txt']}
+      {name: 'JSON Files', extensions: ['json']}
     ]
   });
   filesPromise.then((dialogReturn) => {
@@ -26,7 +26,7 @@ function getFileFromUser(): void {
   });
 }
 
-function appendSaveToFile(filepath: string, lines: string[]) {
+function appendSaveToFile(filepath: string, lines: string[]): void {
   fs.appendFile(filepath, lines.join('\n') + '\n', (err) => {
     if (err) {
       console.log('something went wrong saving the file');

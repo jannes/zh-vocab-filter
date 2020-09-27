@@ -1,15 +1,16 @@
 import {ChangeDetectorRef, Component, HostListener, OnInit, ViewChild} from '@angular/core';
-import {WordDisplayComponent} from "../word-display/word-display.component"
-import {FileService} from "../file.service"
+import { FileService } from 'src/app/services';
+import {WordDisplayComponent} from './word-display.component';
 
 const SAVE_MESSAGE = 'ENTER to save';
 
 @Component({
-  selector: 'app-main',
-  templateUrl: './main.component.html'
+  selector: 'app-chapter',
+  templateUrl: './chapter.component.html',
+  styles: []
 })
-export class MainComponent implements OnInit {
-  title = 'zv-vocab-filter';
+export class ChapterComponent implements OnInit {
+
   i = 0;
   words = [];
   wordsToStudy: string[];
@@ -22,7 +23,7 @@ export class MainComponent implements OnInit {
   constructor(private fileService: FileService, private cdr: ChangeDetectorRef) {
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.fileService.content.subscribe((contents) => {
       console.log('getting file event');
       if (contents != null) {
@@ -43,7 +44,7 @@ export class MainComponent implements OnInit {
   }
 
   @HostListener('window:keydown', ['$event'])
-  handleKeyDown(event: KeyboardEvent) {
+  handleKeyDown(event: KeyboardEvent): void {
     // console.log(`pressed key ${event.key}`);
     if (this.i >= this.words.length) {
       if (event.key === 'Enter' && this.wordDisplayComponent.currentWord === SAVE_MESSAGE) {
@@ -75,7 +76,7 @@ export class MainComponent implements OnInit {
     }
   }
 
-  updateCurrentWord() {
+  updateCurrentWord(): void {
     this.i += 1;
     if (this.i >= this.words.length) {
       this.wordDisplayComponent.currentWord = SAVE_MESSAGE;
@@ -84,7 +85,7 @@ export class MainComponent implements OnInit {
     }
   }
 
-  performUndo() {
+  performUndo(): void {
     if (this.i > 0) {
       this.i -= 1;
       const wordToUndo = this.words[this.i];
@@ -98,4 +99,5 @@ export class MainComponent implements OnInit {
       }
     }
   }
+
 }
