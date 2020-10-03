@@ -92,7 +92,7 @@ function createWindow(): BrowserWindow {
 
     require('electron-reload')(__dirname, {
       electron: require(
-        `${__dirname}/node_modules/electron`
+        `${__dirname}/../node_modules/electron`
       )
     });
     win.loadURL('http://localhost:4200');
