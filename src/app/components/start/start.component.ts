@@ -2,7 +2,6 @@ import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import { NgZone } from '@angular/core';
 import { FileService } from 'src/app/services';
-import {BookData} from 'src/app/data/bookData';
 
 
 @Component({
@@ -16,17 +15,9 @@ export class StartComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.fileService.content.subscribe((contents) => {
+    this.fileService.content.subscribe((bookData) => {
       console.log('getting file event');
-      if (contents != null) {
-        try {
-        const parsed = JSON.parse(contents);
-        const casted = parsed as BookData;
-        this.zone.run(() => this.router.navigate(['/overview'], {state: {data: casted}}));
-        } catch {
-          alert('invalid json');
-        }
-      }
+      this.zone.run(() => this.router.navigate(['/overview'], {state: {data: bookData}}));
     });
   }
 }

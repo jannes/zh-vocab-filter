@@ -1,6 +1,8 @@
-import {ChangeDetectorRef, Component, HostListener, OnInit, ViewChild} from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Router } from '@angular/router';
+import { ChapterData } from 'src/app/data/bookData';
 import { FileService } from 'src/app/services';
-import {WordDisplayComponent} from './word-display.component';
+import { WordDisplayComponent } from './word-display.component';
 
 const SAVE_MESSAGE = 'ENTER to save';
 
@@ -20,27 +22,21 @@ export class ChapterComponent implements OnInit {
   @ViewChild(WordDisplayComponent)
   private wordDisplayComponent;
 
-  constructor(private fileService: FileService, private cdr: ChangeDetectorRef) {
+  constructor(private router: Router, private fileService: FileService, private cdr: ChangeDetectorRef) {
+    // this.chapters = ["jannes", "jannes", "hannes"];
+    const chapterData = this.router.getCurrentNavigation().extras.state.data as ChapterData;
+    this.words = chapterData.words;
+    this.wordsToStudy = [];
+    this.wordsToNotStudy = [];
+    this.wordsToIgnore = [];
+    this.i = 0;
   }
 
   ngOnInit(): void {
-    this.fileService.content.subscribe((contents) => {
-      console.log('getting file event');
-      if (contents != null) {
-        this.words = contents
-          .split('\n')
-          .map(word => word.trim())
-          .filter(word => word.length > 0);
-        this.wordsToStudy = [];
-        this.wordsToNotStudy = [];
-        this.wordsToIgnore = [];
-        this.i = 0;
-        if (this.words.length > 0) {
-          this.wordDisplayComponent.currentWord = this.words[0];
-          this.cdr.detectChanges();
-        }
-      }
-    });
+    if (this.words.length > 0) {
+      this.wordDisplayComponent.currentWord = this.words[0];
+      this.cdr.detectChanges();
+    }
   }
 
   @HostListener('window:keydown', ['$event'])

@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
+import { BookData } from '../data/bookData';
 
 const electron = (window as any).require('electron');
 
@@ -9,12 +10,12 @@ const electron = (window as any).require('electron');
 
 export class FileService {
 
-  content = new BehaviorSubject<string>(null);
+  content = new BehaviorSubject<BookData>(null);
   currentFilepath: string;
 
   constructor() {
     this.currentFilepath = '';
-    electron.ipcRenderer.on('getFile', (event, filepath, content) => {
+    electron.ipcRenderer.on('getFile', (event: any, filepath: string, content: BookData) => {
       this.content.next(content);
       this.currentFilepath = filepath;
     });
