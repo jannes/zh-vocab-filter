@@ -1,11 +1,11 @@
 import {app, BrowserWindow, Menu, MenuItem, screen, dialog, ipcMain} from 'electron';
 import * as path from 'path';
 import * as url from 'url';
-import * as fs from "fs";
+import * as fs from 'fs';
 
 let win: BrowserWindow = null;
-const args = process.argv.slice(1),
-  serve = args.some(val => val === '--serve');
+const args = process.argv.slice(1);
+const serve = args.some(val => val === '--serve');
 
 // open file, read as string and send to file service
 function getFileFromUser(): void {
@@ -21,8 +21,16 @@ function getFileFromUser(): void {
     }
     const filepath = dialogReturn.filePaths[0];
     console.log(filepath);
-    const content = fs.readFileSync(filepath).toString();
-    win.webContents.send('getFile', filepath, content);
+    const content = fs.readFileSync(filepath);
+    const parsed = JSON.parse(content.toString());
+    // TODO: better validation
+    if (('title' in parsed) && ('vocabulary' in parsed)) {
+      console.log('parse success');
+      console.log(parsed.title);
+      win.webContents.send('getFile', filepath, parsed);
+    }
+  }).catch((error) => {
+    alert('could not parse json');
   });
 }
 
@@ -51,7 +59,7 @@ function createWindow(): BrowserWindow {
     },
   });
 
-  const isMac = process.platform === 'darwin'
+  const isMac = process.platform === 'darwin';
 
   const template = [
     ...(isMac ? [{
@@ -80,11 +88,11 @@ function createWindow(): BrowserWindow {
         }
       ]
     },
-  ]
+  ];
 
   // @ts-ignore
   const menu = Menu.buildFromTemplate(template);
-  Menu.setApplicationMenu(menu)
+  Menu.setApplicationMenu(menu);
 
   if (serve) {
 
@@ -120,7 +128,8 @@ try {
   // This method will be called when Electron has finished
   // initialization and is ready to create browser windows.
   // Some APIs can only be used after this event occurs.
-  // Added 400 ms to fix the black background issue while using transparent window. More detais at https://github.com/electron/electron/issues/15947
+  // Added 400 ms to fix the black background issue while using transparent window.
+  // More detais at https://github.com/electron/electron/issues/15947
   app.on('ready', () => setTimeout(createWindow, 400));
 
   // Quit when all windows are closed.
