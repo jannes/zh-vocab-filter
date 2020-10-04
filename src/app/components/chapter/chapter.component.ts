@@ -13,7 +13,7 @@ const SAVE_MESSAGE = 'ENTER to save';
 })
 export class ChapterComponent implements OnInit, AfterViewInit {
 
-  chapterTitle = "";
+  chapterTitle = '';
   i = 0;
   words = [];
   wordsToStudy: string[];
@@ -21,7 +21,7 @@ export class ChapterComponent implements OnInit, AfterViewInit {
   wordsToIgnore: string[];
 
   @ViewChild(WordDisplayComponent)
-  private wordDisplayComponent;
+  private wordDisplayComponent: WordDisplayComponent;
 
   constructor(private router: Router, private fileService: FileService, private cdr: ChangeDetectorRef) {
     const chapterData = this.router.getCurrentNavigation().extras.state.data as ChapterData;

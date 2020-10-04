@@ -1,5 +1,11 @@
-<div *ngFor="let chapter of chapters">
-    <div (click)="goToChapter(chapter.title)" class="container text-2xl pl-5 bg-white hover:bg-gray-100 border-2 shadow">
+<app-statistics></app-statistics>
+<!-- <div *ngFor="let chapter of chapters" [className]="chapterIsFiltered(chapter.title) ? 'bg-green-200' : 'bg-white-100'"> -->
+<div *ngFor="let chapter of chapters" [ngClass]="{
+    'bg-green-200': chapterIsFiltered(chapter.title),
+    'bg-gray-200': chapterIsSelected(chapter.title)
+}">
+    <div (dblclick)="goToChapter(chapter.title)" (click)="select(chapter.title)" class="hover:bg-gray-200 container text-2xl pl-5 border-2 shadow">
         {{ chapter.title }}
     </div>
 </div>
+<!-- [ngClass]="getChapterBackground(chapter.title)" -->

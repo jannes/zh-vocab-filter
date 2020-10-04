@@ -3,16 +3,22 @@ import { Component, OnInit } from '@angular/core';
 @Component({
   selector: 'app-statistics',
   template: `
-    <p>
-      statistics works!
-    </p>
+    <div>
+      total: {{ amountWords }}, to study: {{ amountWordsToStudy }}, to ignore: {{ amountWordsToIgnore }}
+    </div>
   `,
   styles: [
   ]
 })
 export class StatisticsComponent implements OnInit {
 
-  constructor() { }
+  amountWords: number;
+  amountWordsToStudy: number;
+  amountWordsToIgnore: number;
+
+  constructor() { 
+
+  }
 
   ngOnInit(): void {
   }
