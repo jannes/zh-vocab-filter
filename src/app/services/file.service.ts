@@ -1,6 +1,6 @@
-import {Injectable} from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
-import { BookData } from '../../shared/bookData';
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+import { BookDataFiltered, ChapterFiltered } from '../../shared/bookData';
 import { ElectronService } from './electron.service';
 
 // const electron = (window as any).require('electron');
@@ -11,35 +11,29 @@ import { ElectronService } from './electron.service';
 
 export class FileService {
 
-  // this includes the already filtered words, use to save file
-  content = new BehaviorSubject<any>(null);
-  // this is only the actual chapter vocabulary, use to filter in book component
-  book = new BehaviorSubject<BookData>(null);
+  // all state in this object
+  bookData = new BehaviorSubject<BookDataFiltered>(null);
   currentFilepath: string;
 
   constructor(private electronService: ElectronService) {
     this.currentFilepath = '';
-    electronService.ipcRenderer.on('getFile', (event: any, filepath: string, content: any) => {
-      this.content.next(content);
-      // TODO: error handling
-      this.book.next(content as BookData);
+    electronService.ipcRenderer.on('getFile', (event: any, filepath: string, content: BookDataFiltered) => {
+      this.bookData.next(content);
       this.currentFilepath = filepath;
     });
   }
 
-  saveForCurrentFile(wordsToStudy: string[], wordsToIgnore: string[]): void {
-    const currentDir = this.currentFilepath
-      .split('/')
-      .slice(0, -1)
-      .join('/');
-    const filepathToStudy = this.currentFilepath
-      .split('.')
-      .slice(0, -1)
-      .join('.') + '-filtered.txt';
-    const filepathToIgnore = currentDir + '/ignored_words.txt';
-    // console.log(`path for words to study: ${filepathToStudy}`);
-    // console.log(`path for words to ignore: ${filepathToIgnore}`);
-    this.electronService.ipcRenderer.send('save-append', filepathToStudy, wordsToStudy);
-    this.electronService.ipcRenderer.send('save-append', filepathToIgnore, wordsToIgnore);
+  saveChapter(title: string, wordsToStudy: string[], wordsToIgnore: string[]): void {
+    const bookData = this.bookData.value;
+    const chapter = bookData.vocabulary.find(c => c.title === title) as ChapterFiltered;
+    chapter.words_study = wordsToStudy;
+    chapter.words_ignore = wordsToIgnore;
+    const wordsNotStudy = new Set(chapter.words);
+    wordsToStudy.forEach(w => wordsNotStudy.delete(w));
+    wordsToIgnore.forEach(w => wordsNotStudy.delete(w));
+    chapter.words_not_study = Array.from(wordsNotStudy.values());
+
+    this.electronService.ipcRenderer.send('save', this.currentFilepath, bookData);
+    this.bookData.next(bookData);
   }
 }

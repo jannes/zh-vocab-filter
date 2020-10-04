@@ -1,6 +1,7 @@
 import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
-import { BookData, ChapterData } from '../../../shared/bookData';
+import { FileService } from 'src/app/services';
+import { BookData, BookDataFiltered, ChapterData } from '../../../shared/bookData';
 
 @Component({
   selector: 'app-book',
@@ -9,19 +10,43 @@ import { BookData, ChapterData } from '../../../shared/bookData';
 })
 export class BookComponent implements OnInit {
 
+  bookData: BookDataFiltered;
   chapters: ChapterData[];
   title: string;
 
-  constructor(private router: Router, private cdr: ChangeDetectorRef) {
-    const bookData = this.router.getCurrentNavigation().extras.state.data as BookData;
-    this.chapters = bookData.vocabulary;
-    this.title = bookData.title;
+  constructor(private router: Router, private cdr: ChangeDetectorRef, private fileService: FileService) {
+    // const bookData = this.router.getCurrentNavigation().extras.state.data as BookDataFiltered;
   }
 
   ngOnInit(): void {
     console.log('book component init');
-    console.log(`amount chapters: ${this.chapters.length}`);
-    this.cdr.detectChanges();
+    const bookData = this.fileService.bookData.value;
+    if (bookData == null) {
+      alert('book component could not retrieve book data from file service...')
+    }
+    else {
+      this.chapters = bookData.vocabulary;
+      this.title = bookData.title;
+      this.bookData = bookData;
+      console.log(`amount chapters: ${this.chapters.length}`);
+      this.cdr.detectChanges();
+    }
+  }
+
+  getChapter(title: string): ChapterData | null {
+    for (const chapter of this.chapters) {
+      if (chapter.title === title) {
+        return chapter;
+      }
+    }
+    return null;
+  }
+
+  goToChapter(title: string): void {
+    console.log(`go to chapter: ${title}`);
+    const chapter = this.getChapter(title);
+    console.log(`chapter has ${chapter.words.length} words`);
+    this.router.navigate(['/filter'], {state: {data: chapter}});
   }
 
 }

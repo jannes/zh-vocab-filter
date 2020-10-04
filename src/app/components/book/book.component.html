@@ -1,5 +1,5 @@
 <div *ngFor="let chapter of chapters">
-    <div class="container text-2xl pl-5 bg-white border-2 shadow">
+    <div (click)="goToChapter(chapter.title)" class="container text-2xl pl-5 bg-white hover:bg-gray-100 border-2 shadow">
         {{ chapter.title }}
     </div>
 </div>

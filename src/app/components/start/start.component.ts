@@ -15,11 +15,11 @@ export class StartComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.fileService.book.subscribe((bookData) => {
-      console.log('getting file event');
+    this.fileService.bookData.subscribe((bookData) => {
       // book behavior subject is initially null, so ignore that first value
       if (bookData != null) {
-        this.zone.run(() => this.router.navigate(['/overview'], {state: {data: bookData}}));
+        console.log('getting file event');
+        this.zone.run(() => this.router.navigate(['/overview']));
       }
     });
   }

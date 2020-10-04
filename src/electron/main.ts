@@ -1,128 +1,13 @@
 import {app, BrowserWindow, Menu, MenuItem, screen, dialog, ipcMain} from 'electron';
+import {getMenuTemplate} from './menu';
 import * as path from 'path';
 import * as url from 'url';
 import * as fs from 'fs';
+import { BookDataFiltered } from '../shared/bookData';
 
 let win: BrowserWindow = null;
 const args = process.argv.slice(1);
 const serve = args.some(val => val === '--serve');
-
-// open file, read as string and send to file service
-function getFileFromUser(): void {
-  const filesPromise = dialog.showOpenDialog(win, {
-    properties: ['openFile'],
-    filters: [
-      {name: 'JSON Files', extensions: ['json']}
-    ]
-  });
-  filesPromise.then((dialogReturn) => {
-    if (dialogReturn.canceled) {
-      return;
-    }
-    const filepath = dialogReturn.filePaths[0];
-    console.log(filepath);
-    const content = fs.readFileSync(filepath);
-    const parsed = JSON.parse(content.toString());
-    // TODO: better validation
-    if (('title' in parsed) && ('vocabulary' in parsed)) {
-      console.log('parse success');
-      console.log(parsed.title);
-      win.webContents.send('getFile', filepath, parsed);
-    }
-  }).catch((error) => {
-    alert('could not parse json');
-  });
-}
-
-function appendSaveToFile(filepath: string, lines: string[]): void {
-  fs.appendFile(filepath, lines.join('\n') + '\n', (err) => {
-    if (err) {
-      console.log('something went wrong saving the file');
-    }
-  });
-}
-
-function createWindow(): BrowserWindow {
-  const electronScreen = screen;
-  const size = electronScreen.getPrimaryDisplay().workAreaSize;
-
-  // Create the browser window.
-  win = new BrowserWindow({
-    x: 0,
-    y: 0,
-    width: size.width,
-    height: size.height,
-    webPreferences: {
-      nodeIntegration: true,
-      allowRunningInsecureContent: (serve) ? true : false,
-      enableRemoteModule: false // true if you want to use remote module in renderer context (ie. Angular)
-    },
-  });
-
-  const isMac = process.platform === 'darwin';
-
-  const template = [
-    ...(isMac ? [{
-      label: app.name,
-      submenu: [
-        {role: 'about'},
-        {type: 'separator'},
-        {role: 'services'},
-        {type: 'separator'},
-        {role: 'hide'},
-        {role: 'hideothers'},
-        {role: 'unhide'},
-        {type: 'separator'},
-        {role: 'quit'}
-      ]
-    }] : []),
-    {
-      label: 'File',
-      submenu: [
-        {
-          label: 'Open',
-          accelerator: 'CommandOrControl+O',
-          click() {
-            getFileFromUser();
-          }
-        }
-      ]
-    },
-  ];
-
-  // @ts-ignore
-  const menu = Menu.buildFromTemplate(template);
-  Menu.setApplicationMenu(menu);
-
-  if (serve) {
-
-    win.webContents.openDevTools();
-
-    require('electron-reload')(__dirname, {
-      electron: require(
-        `${__dirname}/../node_modules/electron`
-      )
-    });
-    win.loadURL('http://localhost:4200');
-
-  } else {
-    win.loadURL(url.format({
-      pathname: path.join(__dirname, 'dist/index.html'),
-      protocol: 'file:',
-      slashes: true
-    }));
-  }
-
-  // Emitted when the window is closed.
-  win.on('closed', () => {
-    // Dereference the window object, usually you would store window
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    win = null;
-  });
-
-  return win;
-}
 
 try {
   // This method will be called when Electron has finished
@@ -149,11 +34,72 @@ try {
     }
   });
 
-  ipcMain.on('save-append', (event, filepath, lines) => {
-    appendSaveToFile(filepath, lines);
+  ipcMain.on('save', (event, filepath, bookDataFiltered) => {
+    saveOverwrite(filepath, bookDataFiltered);
   });
 
 } catch (e) {
   // Catch Error
   // throw e;
 }
+
+export function saveOverwrite(filepath: string, bookData: BookDataFiltered): void {
+  const content = JSON.stringify(bookData, null, 2);
+  fs.promises.writeFile(filepath, content)
+  .catch(e => dialog.showErrorBox('file error', 'could not save file'));
+}
+
+function createWindow(): BrowserWindow {
+  const electronScreen = screen;
+  const size = electronScreen.getPrimaryDisplay().workAreaSize;
+
+  // Create the browser window.
+  win = new BrowserWindow({
+    x: 0,
+    y: 0,
+    width: size.width,
+    height: size.height,
+    webPreferences: {
+      nodeIntegration: true,
+      allowRunningInsecureContent: (serve) ? true : false,
+      enableRemoteModule: false // true if you want to use remote module in renderer context (ie. Angular)
+    },
+  });
+
+  const isMac = process.platform === 'darwin';
+
+  const template = getMenuTemplate(isMac, app, win);
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
+
+  if (serve) {
+
+    win.webContents.openDevTools();
+
+    require('electron-reload')(__dirname, {
+      electron: require(
+        `${__dirname}/../../node_modules/electron`
+      )
+    });
+    win.loadURL('http://localhost:4200');
+
+  } else {
+    win.loadURL(url.format({
+      pathname: path.join(__dirname, 'dist/index.html'),
+      protocol: 'file:',
+      slashes: true
+    }));
+  }
+
+  // Emitted when the window is closed.
+  win.on('closed', () => {
+    // Dereference the window object, usually you would store window
+    // in an array if your app supports multi windows, this is the time
+    // when you should delete the corresponding element.
+    win = null;
+  });
+
+  return win;
+}
+
+
