@@ -7,6 +7,7 @@ import {StatisticsComponent} from './components/book/statistics.component';
 import {StartComponent} from './components/start/start.component';
 import {AppRoutingModule} from './app-routing.module';
 import {BookComponent} from './components/book/book.component';
+import {ListItemComponent} from './components/book/list-item.component';
 import {ChapterComponent} from './components/chapter/chapter.component';
 
 @NgModule({
@@ -16,7 +17,8 @@ import {ChapterComponent} from './components/chapter/chapter.component';
     StatisticsComponent,
     StartComponent,
     BookComponent,
-    ChapterComponent
+    ChapterComponent,
+    ListItemComponent,
   ],
   imports: [
     BrowserModule,

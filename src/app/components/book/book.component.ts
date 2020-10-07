@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { FileService } from 'src/app/services';
-import { BookData, BookDataFiltered, ChapterData, ChapterFiltered } from '../../../shared/bookData';
+import { BookDataFiltered, ChapterFiltered } from '../../../shared/bookData';
 import { StatisticsComponent } from './statistics.component';
 
 @Component({
@@ -11,30 +11,29 @@ import { StatisticsComponent } from './statistics.component';
 })
 export class BookComponent implements OnInit, AfterViewInit{
 
+  title: string;
   bookData: BookDataFiltered;
   chapters: ChapterFiltered[];
-  // map of chapter title -> is_filtered
-  chapterIsFilteredMap: Map<string, boolean>;
-  title: string;
+  // set of selected chapters (indices) used for statistics and export
+  selected: Set<number>;
+  chapterIsSelected: boolean[];
+  chapterIsFiltered: boolean[];
 
-  // set of selected chapters (titles) used for statistics and export
-  selected: Set<string>;
 
   @ViewChild(StatisticsComponent)
   private statisticsComponent: StatisticsComponent;
 
-  constructor(private router: Router, private cdr: ChangeDetectorRef, private fileService: FileService) {
-    // const bookData = this.router.getCurrentNavigation().extras.state.data as BookDataFiltered;
-  }
+  constructor(private router: Router, private cdr: ChangeDetectorRef, private fileService: FileService) { }
 
-  initFilteredMap(): void {
-    for (const chapter of this.chapters) {
+  initFilteredChapters(): void {
+    for (let i = 0; i < this.chapters.length; i++) {
+      const chapter = this.chapters[i];
       const isFiltered = (chapter.words.length === 0) || (chapter.words_ignore.length > 0) ||
                          (chapter.words_not_study.length > 0) || (chapter.words_study.length > 0);
       if (isFiltered) {
         console.log(`chapter ${chapter.title} is filtered`);
       }
-      this.chapterIsFilteredMap.set(chapter.title, isFiltered);
+      this.chapterIsFiltered[i] = isFiltered;
     }
   }
 
@@ -46,50 +45,69 @@ export class BookComponent implements OnInit, AfterViewInit{
     }
     else {
       this.chapters = bookData.vocabulary;
-      console.log(`amount chapters: ${this.chapters.length}`);
+      const amountChapters = this.chapters.length;
+      console.log(`amount chapters: ${amountChapters}`);
+      this.chapterIsSelected = Array<boolean>(amountChapters);
+      this.chapterIsFiltered = Array<boolean>(amountChapters);
       this.title = bookData.title;
       this.bookData = bookData;
-      this.chapterIsFilteredMap = new Map();
       this.selected = new Set();
-      this.initFilteredMap();
+      this.chapterIsSelected.fill(false);
+      this.initFilteredChapters();
     }
   }
 
-  ngAfterViewInit(): void {
-      this.cdr.detectChanges();
+  ngAfterViewInit(): void { }
+
+  unselectChapters(indices: Set<number>): void {
+    for (const index of indices) {
+      this.chapterIsSelected[index] = false;
+    }
   }
 
-  select(chapterTitle: string): void {
-    console.log(`selecting: ${chapterTitle}`);
-    const chapter = this.getChapterFromTitle(chapterTitle);
-    this.selected = new Set();
-    this.selected.add(chapterTitle);
-    this.statisticsComponent.amountWords = chapter.words.length;
-    this.statisticsComponent.amountWordsToStudy = chapter.words_study.length;
-    this.statisticsComponent.amountWordsToIgnore = chapter.words_ignore.length;
+  // event: [index, shiftIsDown]
+  selectChapter(event: [number, boolean]): void {
+    const index = event[0];
+    const shiftPressed = event[1];
+    const chapter = this.chapters[index];
+    console.log(`clicked chapter: ${chapter.title}`);
+    if (!shiftPressed) {
+      this.unselectChapters(this.selected);
+      this.selected = new Set();
+    }
+    else if (this.selected.size > 0) {
+      // select all elements between including clicked one
+      let j = this.selected.values().next().value;
+      while (j < index) {
+        j += 1;
+        this.chapterIsSelected[j] = true;
+        this.selected.add(j);
+      }
+      while (j > index) {
+        j -= 1;
+        this.chapterIsSelected[j] = true;
+        this.selected.add(j);
+      }
+    }
+    this.chapterIsSelected[index] = true;
+    this.selected.add(index);
+    let amountWords = 0;
+    let amountWordsToStudy = 0;
+    let amountWordsToIgnore = 0;
+    for (const i of this.selected) {
+      amountWords += this.chapters[i].words.length;
+      amountWordsToStudy += this.chapters[i].words_study.length;
+      amountWordsToIgnore += this.chapters[i].words_ignore.length;
+    }
+    this.statisticsComponent.amountWords = amountWords;
+    this.statisticsComponent.amountWordsToStudy = amountWordsToStudy;
+    this.statisticsComponent.amountWordsToIgnore = amountWordsToIgnore;
     this.cdr.detectChanges();
   }
 
-  chapterIsFiltered(title: string): boolean {
-    return this.chapterIsFilteredMap.get(title);
-  }
-
-  chapterIsSelected(title: string): boolean {
-    return title in this.selected;
-  }
-
-  getChapterFromTitle(title: string): ChapterFiltered | null {
-    for (const chapter of this.chapters) {
-      if (chapter.title === title) {
-        return chapter;
-      }
-    }
-    return null;
-  }
-
-  goToChapter(title: string): void {
-    console.log(`go to chapter: ${title}`);
-    const chapter = this.getChapterFromTitle(title);
+  goToChapter(index: number): void {
+    const chapter = this.chapters[index];
+    console.log(`go to chapter: ${chapter.title}`);
     console.log(`chapter has ${chapter.words.length} words`);
     this.router.navigate(['/filter'], { state: { data: chapter } });
   }

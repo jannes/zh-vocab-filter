@@ -1,11 +1,19 @@
-<app-statistics></app-statistics>
-<!-- <div *ngFor="let chapter of chapters" [className]="chapterIsFiltered(chapter.title) ? 'bg-green-200' : 'bg-white-100'"> -->
-<div *ngFor="let chapter of chapters" [ngClass]="{
+<!-- <app-statistics></app-statistics>
+<div *ngFor="let chapter of chapters; let i = index" [ngClass]="{
     'bg-green-200': chapterIsFiltered(chapter.title),
-    'bg-gray-200': chapterIsSelected(chapter.title)
+    'bg-gray-200': chapterIsSelected(chapter.title),
+    'border-8': chapterIsSelected(chapter.title),
+    'border-2': !chapterIsSelected(chapter.title)
 }">
-    <div (dblclick)="goToChapter(chapter.title)" (click)="select(chapter.title)" class="hover:bg-gray-200 container text-2xl pl-5 border-2 shadow">
+    <div (dblclick)="goToChapter(chapter.title)" (click)="select(chapter.title)" class="hover:bg-gray-200 container text-2xl pl-5 shadow">
         {{ chapter.title }}
     </div>
+    <app-list-item [title]="chapter.tile", [index]="i"></app-list-item>
+</div> -->
+
+<app-statistics></app-statistics>
+<div *ngFor="let chapter of chapters; let i = index">
+    <app-list-item [chapterTitle]="chapter.title" [chapterIndex]="i" [isSelected]="chapterIsSelected[i]" [isFiltered]="chapterIsFiltered[i]"
+                   (clicked)="selectChapter($event)" (dblClicked)="goToChapter(i)">
+    </app-list-item>
 </div>
-<!-- [ngClass]="getChapterBackground(chapter.title)" -->
