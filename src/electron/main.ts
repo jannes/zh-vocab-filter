@@ -1,9 +1,8 @@
-import {app, BrowserWindow, Menu, MenuItem, screen, dialog, ipcMain} from 'electron';
+import {app, BrowserWindow, Menu, screen, ipcMain} from 'electron';
 import {getMenuTemplate} from './menu';
 import * as path from 'path';
 import * as url from 'url';
-import * as fs from 'fs';
-import { BookDataFiltered } from '../shared/bookData';
+import { registerMessageHandlers } from './ng-ipc';
 
 let win: BrowserWindow = null;
 const args = process.argv.slice(1);
@@ -34,20 +33,13 @@ try {
     }
   });
 
-  ipcMain.on('save', (event, filepath, bookDataFiltered) => {
-    saveOverwrite(filepath, bookDataFiltered);
-  });
+  registerMessageHandlers(ipcMain);
 
 } catch (e) {
   // Catch Error
   // throw e;
 }
 
-export function saveOverwrite(filepath: string, bookData: BookDataFiltered): void {
-  const content = JSON.stringify(bookData, null, 2);
-  fs.promises.writeFile(filepath, content)
-  .catch(e => dialog.showErrorBox('file error', 'could not save file'));
-}
 
 function createWindow(): BrowserWindow {
   const electronScreen = screen;

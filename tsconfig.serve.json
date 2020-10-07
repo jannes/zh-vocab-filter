@@ -19,7 +19,9 @@
   },
   "files": [
     "src/electron/main.ts",
-    "src/electron/menu.ts"
+    "src/electron/menu.ts",
+    "src/electron/utils.ts",
+    "src/electron/ng-ipc.ts",
   ],
   "exclude": [
     "node_modules",

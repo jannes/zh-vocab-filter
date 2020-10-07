@@ -54,10 +54,23 @@ export class BookComponent implements OnInit, AfterViewInit{
       this.selected = new Set();
       this.chapterIsSelected.fill(false);
       this.initFilteredChapters();
+      this.fileService.exportCommand.subscribe(() => {
+        this.fileService.exportSelection(this.getSelectedChaptersStudyWords());
+      });
     }
   }
 
   ngAfterViewInit(): void { }
+
+  getSelectedChaptersStudyWords(): string[] {
+    const words = new Array<string>();
+    const sortedIndices = Array.from(this.selected).sort();
+    for (const i of sortedIndices) {
+      const chapter = this.chapters[i];
+      words.push(...chapter.words_study);
+    }
+    return words;
+  }
 
   unselectChapters(indices: Set<number>): void {
     for (const index of indices) {
