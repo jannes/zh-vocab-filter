@@ -1,11 +1,15 @@
-import { BrowserWindow, dialog } from 'electron';
+import { app, BrowserWindow, dialog } from 'electron';
 import { BookData, BookDataFiltered } from '../shared/bookData';
 import * as fs from 'fs';
 
 
 export function saveOverwrite(filepath: string, bookData: BookDataFiltered): void {
   const content = JSON.stringify(bookData, null, 2);
-  fs.promises.writeFile(filepath, content)
+  const tmpFilepath = 'filepath' + '.tmp';
+  fs.promises.writeFile(tmpFilepath, content)
+    .then(() => {
+      return fs.promises.rename(tmpFilepath, filepath);
+    })
     .catch(e => dialog.showErrorBox('file error', 'could not save file'));
 }
 
@@ -53,7 +57,13 @@ export function userSaveExport(words: string[]): void {
     dialog.showErrorBox('Save error', 'no chapter selected or selected chapters have no words to study');
   }
   else {
-    dialog.showSaveDialog(null)
+    const options = {
+      title: 'Save words to study from selected chapters',
+      button: 'Save',
+      defaultPath: '/Users/jannes/Nextcloud/中文/untitled',
+      properties: ['createDirectory' as const]
+    };
+    dialog.showSaveDialog(options)
       .then((result) => {
         if (!result.canceled) {
           return saveExport(result.filePath, words);
