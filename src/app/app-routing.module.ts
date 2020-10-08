@@ -6,7 +6,7 @@ import { StartComponent } from './components/start/start.component';
 import { AppComponent } from './app.component';
 
 const routes: Routes = [
-  {path: '', component: AppComponent},
+  {path: '', component: StartComponent},
   {path: 'start', component: StartComponent},
   {path: 'overview', component: BookComponent},
   {path: 'filter', component: ChapterComponent}

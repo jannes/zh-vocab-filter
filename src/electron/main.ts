@@ -76,8 +76,10 @@ function createWindow(): BrowserWindow {
     win.loadURL('http://localhost:4200');
 
   } else {
+    const indexPath = path.join(__dirname, '../../dist/index.html');
+    console.log(indexPath);
     win.loadURL(url.format({
-      pathname: path.join(__dirname, 'dist/index.html'),
+      pathname: indexPath,
       protocol: 'file:',
       slashes: true
     }));
