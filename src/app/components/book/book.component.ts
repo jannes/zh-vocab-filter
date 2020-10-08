@@ -1,5 +1,6 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { FileService } from 'src/app/services';
 import { BookDataFiltered, ChapterFiltered } from '../../../shared/bookData';
 import { StatisticsComponent } from './statistics.component';
@@ -9,7 +10,7 @@ import { StatisticsComponent } from './statistics.component';
   templateUrl: './book.component.html',
   styles: []
 })
-export class BookComponent implements OnInit, AfterViewInit{
+export class BookComponent implements OnInit,  OnDestroy{
 
   title: string;
   bookData: BookDataFiltered;
@@ -18,23 +19,15 @@ export class BookComponent implements OnInit, AfterViewInit{
   selected: Set<number>;
   chapterIsSelected: boolean[];
   chapterIsFiltered: boolean[];
+  exportCommandSubscription: Subscription;
 
 
   @ViewChild(StatisticsComponent)
   private statisticsComponent: StatisticsComponent;
 
-  constructor(private router: Router, private cdr: ChangeDetectorRef, private fileService: FileService) { }
-
-  initFilteredChapters(): void {
-    for (let i = 0; i < this.chapters.length; i++) {
-      const chapter = this.chapters[i];
-      const isFiltered = (chapter.words.length === 0) || (chapter.words_ignore.length > 0) ||
-                         (chapter.words_not_study.length > 0) || (chapter.words_study.length > 0);
-      if (isFiltered) {
-        console.log(`chapter ${chapter.title} is filtered`);
-      }
-      this.chapterIsFiltered[i] = isFiltered;
-    }
+  constructor(private router: Router, private cdr: ChangeDetectorRef, private fileService: FileService) {
+      console.log('execute book component constructor');
+      this.selected = new Set();
   }
 
   ngOnInit(): void {
@@ -51,16 +44,30 @@ export class BookComponent implements OnInit, AfterViewInit{
       this.chapterIsFiltered = Array<boolean>(amountChapters);
       this.title = bookData.title;
       this.bookData = bookData;
-      this.selected = new Set();
       this.chapterIsSelected.fill(false);
       this.initFilteredChapters();
-      this.fileService.exportCommand.subscribe(() => {
+      this.exportCommandSubscription = this.fileService.exportCommand.subscribe(() => {
+        console.log('book component received export command');
         this.fileService.exportSelection(this.getSelectedChaptersStudyWords());
       });
     }
   }
 
-  ngAfterViewInit(): void { }
+  ngOnDestroy(): void {
+    this.exportCommandSubscription.unsubscribe();
+  }
+
+  initFilteredChapters(): void {
+    for (let i = 0; i < this.chapters.length; i++) {
+      const chapter = this.chapters[i];
+      const isFiltered = (chapter.words.length === 0) || (chapter.words_ignore.length > 0) ||
+                         (chapter.words_not_study.length > 0) || (chapter.words_study.length > 0);
+      if (isFiltered) {
+        console.log(`chapter ${chapter.title} is filtered`);
+      }
+      this.chapterIsFiltered[i] = isFiltered;
+    }
+  }
 
   getSelectedChaptersStudyWords(): string[] {
     const words = new Array<string>();
