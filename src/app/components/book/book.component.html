@@ -12,8 +12,10 @@
 </div> -->
 
 <app-statistics></app-statistics>
-<div *ngFor="let chapter of chapters; let i = index">
-    <app-list-item [chapterTitle]="chapter.title" [chapterIndex]="i" [isSelected]="chapterIsSelected[i]" [isFiltered]="chapterIsFiltered[i]"
-                   (clicked)="selectChapter($event)" (dblClicked)="goToChapter(i)">
-    </app-list-item>
+<div class="overscroll-contain">
+    <div *ngFor="let chapter of chapters; let i = index">
+        <app-list-item [chapterTitle]="chapter.title" [chapterIndex]="i" [isSelected]="chapterIsSelected[i]"
+            [isFiltered]="chapterIsFiltered[i]" (clicked)="selectChapter($event)" (dblClicked)="goToChapter(i)">
+        </app-list-item>
+    </div>
 </div>

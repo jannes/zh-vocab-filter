@@ -1,14 +1,15 @@
-import {BrowserModule} from '@angular/platform-browser';
-import {NgModule} from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
 
-import {AppComponent} from './app.component';
-import {WordDisplayComponent} from './components/chapter/word-display.component';
-import {StatisticsComponent} from './components/book/statistics.component';
-import {StartComponent} from './components/start/start.component';
-import {AppRoutingModule} from './app-routing.module';
-import {BookComponent} from './components/book/book.component';
-import {ListItemComponent} from './components/book/list-item.component';
-import {ChapterComponent} from './components/chapter/chapter.component';
+import { AppComponent } from './app.component';
+import { WordDisplayComponent } from './components/chapter/word-display.component';
+import { StatisticsComponent } from './components/book/statistics.component';
+import { StartComponent } from './components/start/start.component';
+import { AppRoutingModule } from './app-routing.module';
+import { BookComponent } from './components/book/book.component';
+import { ListItemComponent } from './components/book/list-item.component';
+import { ChapterComponent } from './components/chapter/chapter.component';
+import { BackButtonDirective } from './directives/back.button';
 
 @NgModule({
   declarations: [
@@ -19,6 +20,7 @@ import {ChapterComponent} from './components/chapter/chapter.component';
     BookComponent,
     ChapterComponent,
     ListItemComponent,
+    BackButtonDirective
   ],
   imports: [
     BrowserModule,
