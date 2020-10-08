@@ -16,11 +16,8 @@ export class StatisticsComponent implements OnInit {
   amountWordsToStudy: number;
   amountWordsToIgnore: number;
 
-  constructor() { 
+  constructor() { }
 
-  }
-
-  ngOnInit(): void {
-  }
+  ngOnInit(): void { }
 
 }
