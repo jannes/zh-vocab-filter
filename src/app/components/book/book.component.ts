@@ -10,7 +10,7 @@ import { StatisticsComponent } from './statistics.component';
   templateUrl: './book.component.html',
   styles: []
 })
-export class BookComponent implements OnInit,  OnDestroy{
+export class BookComponent implements OnInit, OnDestroy {
 
   title: string;
   bookData: BookDataFiltered;
@@ -26,8 +26,8 @@ export class BookComponent implements OnInit,  OnDestroy{
   private statisticsComponent: StatisticsComponent;
 
   constructor(private router: Router, private cdr: ChangeDetectorRef, private fileService: FileService) {
-      console.log('execute book component constructor');
-      this.selected = new Set();
+    console.log('execute book component constructor');
+    this.selected = new Set();
   }
 
   ngOnInit(): void {
@@ -61,7 +61,7 @@ export class BookComponent implements OnInit,  OnDestroy{
     for (let i = 0; i < this.chapters.length; i++) {
       const chapter = this.chapters[i];
       const isFiltered = (chapter.words.length === 0) || (chapter.words_ignore.length > 0) ||
-                         (chapter.words_not_study.length > 0) || (chapter.words_study.length > 0);
+        (chapter.words_not_study.length > 0) || (chapter.words_study.length > 0);
       if (isFiltered) {
         console.log(`chapter ${chapter.title} is filtered`);
       }
@@ -127,9 +127,11 @@ export class BookComponent implements OnInit,  OnDestroy{
 
   goToChapter(index: number): void {
     const chapter = this.chapters[index];
-    console.log(`go to chapter: ${chapter.title}`);
-    console.log(`chapter has ${chapter.words.length} words`);
-    this.router.navigate(['/filter'], { state: { data: chapter } });
+    if (chapter.words.length > 0) {
+      console.log(`go to chapter: ${chapter.title}`);
+      console.log(`chapter has ${chapter.words.length} words`);
+      this.router.navigate(['/filter'], { state: { data: chapter } });
+    }
   }
 
 }
