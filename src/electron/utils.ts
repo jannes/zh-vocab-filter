@@ -5,12 +5,12 @@ import * as fs from 'fs';
 
 export function saveOverwrite(filepath: string, bookData: BookDataFiltered): void {
   const content = JSON.stringify(bookData, null, 2);
-  const tmpFilepath = 'filepath' + '.tmp';
+  const tmpFilepath = filepath + '.tmp';
   fs.promises.writeFile(tmpFilepath, content)
     .then(() => {
       return fs.promises.rename(tmpFilepath, filepath);
     })
-    .catch(e => dialog.showErrorBox('file error', 'could not save file'));
+    .catch(e => dialog.showErrorBox('file error', `could not save file, error: ${e}`));
 }
 
 export function saveExport(filepath: string, words: string[]): Promise<void> {
