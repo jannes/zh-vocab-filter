@@ -9,6 +9,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { BookComponent } from './components/book/book.component';
 import { ListItemComponent } from './components/book/list-item.component';
 import { ChapterComponent } from './components/chapter/chapter.component';
+import { ProgressComponent } from './components/chapter/progress.component';
 import { BackButtonDirective } from './directives/back.button';
 
 @NgModule({
@@ -20,7 +21,8 @@ import { BackButtonDirective } from './directives/back.button';
     BookComponent,
     ChapterComponent,
     ListItemComponent,
-    BackButtonDirective
+    BackButtonDirective,
+    ProgressComponent
   ],
   imports: [
     BrowserModule,

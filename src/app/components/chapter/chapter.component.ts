@@ -83,6 +83,7 @@ export class ChapterComponent implements OnInit, AfterViewInit {
     } else {
       this.wordDisplayComponent.currentWord = this.words[this.i];
     }
+    this.cdr.detectChanges();
   }
 
   performUndo(): void {
@@ -98,6 +99,7 @@ export class ChapterComponent implements OnInit, AfterViewInit {
         this.wordsToIgnore.pop();
       }
     }
+    this.cdr.detectChanges();
   }
 
 }
