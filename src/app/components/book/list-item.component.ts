@@ -9,7 +9,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
         'border-black': isSelected,
         'border-white': !isSelected
     }"
-    class="hover:bg-gray-200 text-2xl pl-5 shadow border-2">
+    class="hover:bg-gray-200 text-2xl pl-5 shadow border-2 font-sanszh">
         {{ chapterTitle }}
     </div>
   `,

@@ -2,6 +2,14 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
+@layer base {
+    @font-face {
+      font-family: MyKaiti;
+      font-weight: 400;
+      src: url(/assets/fonts/Kaiti.ttf) format("truetype");
+    }
+  }
+
 /* turn off user selection of text in the window */
 /* https://github.com/electron/electron/issues/2538 */
 

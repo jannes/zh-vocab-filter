@@ -231,6 +231,9 @@ module.exports = {
       default: '1',
     },
     fontFamily: {
+      sanszh: [
+        '"MyKaiti"'
+      ],
       sans: [
         'system-ui',
         '-apple-system',
