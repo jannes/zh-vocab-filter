@@ -1,24 +1,26 @@
-import { Component, OnInit, Input, SimpleChange } from '@angular/core';
+import {Component, OnInit, Input, SimpleChange} from '@angular/core';
 
 @Component({
-    selector: 'app-progress',
-    template: `
-    <div class="container text-1xl text-center">{{displayString(totalAmount, filteredAmount)}}</div>
+  selector: 'app-progress',
+  template: `
+    <div class="text-1xl text-center">{{displayString(totalAmount, filteredAmount)}}</div>
   `,
-    styles: []
+  styles: []
 })
 export class ProgressComponent implements OnInit {
 
-    @Input()
-    totalAmount: number;
-    @Input()
-    filteredAmount: number;
+  @Input()
+  totalAmount: number;
+  @Input()
+  filteredAmount: number;
 
-    constructor() { }
+  constructor() {
+  }
 
-    ngOnInit(): void { }
+  ngOnInit(): void {
+  }
 
-    displayString(total: number, filtered: number): string {
-        return `filtered ${this.filteredAmount} out of ${this.totalAmount}`;
-    }
+  displayString(total: number, filtered: number): string {
+    return `filtered ${this.filteredAmount} out of ${this.totalAmount}`;
+  }
 }

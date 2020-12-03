@@ -1,11 +1,11 @@
 <app-statistics></app-statistics>
-<div class="container overflow-y-auto h-full">
-    <div *ngFor="let chapter of chapters; let i = index">
-        <app-list-item [chapterTitle]="chapter.title" [chapterIndex]="i" [isSelected]="chapterIsSelected[i]"
-            [isFiltered]="chapterIsFiltered[i]" (clicked)="selectChapter($event)" (dblClicked)="goToChapter(i)">
-        </app-list-item>
-    </div>
-    <!-- hacky extra space so last list item does not get clipped -->
-    <!-- TODO: fix the css so this is not needed -->
-    <div class="h-8"></div>
+<div class="overflow-y-auto h-full">
+  <div *ngFor="let chapter of chapters; let i = index">
+    <app-list-item [chapterTitle]="chapter.title" [chapterIndex]="i" [isSelected]="chapterIsSelected[i]"
+                   [isFiltered]="chapterIsFiltered[i]" (clicked)="selectChapter($event)" (dblClicked)="goToChapter(i)">
+    </app-list-item>
+  </div>
+  <!-- hacky extra space so last list item does not get clipped -->
+  <!-- TODO: fix the css so this is not needed -->
+  <div class="h-8"></div>
 </div>
