@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Subject } from 'rxjs';
-import { BookDataFiltered, ChapterFiltered } from '../../shared/bookData';
-import { ElectronService } from './electron.service';
+import {Injectable} from '@angular/core';
+import {BehaviorSubject, Subject} from 'rxjs';
+import {BookDataFiltered, ChapterFiltered} from '../../shared/bookData';
+import {ElectronService} from './electron.service';
 
 // const electron = (window as any).require('electron');
 
@@ -14,6 +14,7 @@ export class FileService {
   // all state in this object
   bookData = new BehaviorSubject<BookDataFiltered>(null);
   exportCommand = new Subject<void>();
+  exportIgnoredCommand = new Subject<void>();
   currentFilepath: string;
 
   constructor(private electronService: ElectronService) {
@@ -25,6 +26,10 @@ export class FileService {
     electronService.ipcRenderer.on('export', (event: any) => {
       // notify book component to call back with the selected words
       this.exportCommand.next();
+    });
+    electronService.ipcRenderer.on('export-ignored', (event: any) => {
+      // notify book component to call back with the selected words
+      this.exportIgnoredCommand.next();
     });
   }
 
@@ -44,5 +49,9 @@ export class FileService {
 
   exportSelection(wordsToStudy: string[]): void {
     this.electronService.ipcRenderer.send('export', wordsToStudy);
+  }
+
+  exportIgnored(wordsToIgnore: string[]): void {
+    this.electronService.ipcRenderer.send('export-ignored', wordsToIgnore);
   }
 }

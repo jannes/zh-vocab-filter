@@ -1,9 +1,9 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
-import { FileService } from 'src/app/services';
-import { BookDataFiltered, ChapterFiltered } from '../../../shared/bookData';
-import { StatisticsComponent } from './statistics.component';
+import {ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Router} from '@angular/router';
+import {Subscription} from 'rxjs';
+import {FileService} from 'src/app/services';
+import {BookDataFiltered, ChapterFiltered} from '../../../shared/bookData';
+import {StatisticsComponent} from './statistics.component';
 
 @Component({
   selector: 'app-book',
@@ -20,6 +20,7 @@ export class BookComponent implements OnInit, OnDestroy {
   chapterIsSelected: boolean[];
   chapterIsFiltered: boolean[];
   exportCommandSubscription: Subscription;
+  exportIgnoredCommandSubscription: Subscription;
 
 
   @ViewChild(StatisticsComponent)
@@ -35,8 +36,7 @@ export class BookComponent implements OnInit, OnDestroy {
     const bookData = this.fileService.bookData.value;
     if (bookData == null) {
       alert('book component could not retrieve book data from file service...');
-    }
-    else {
+    } else {
       this.chapters = bookData.vocabulary;
       const amountChapters = this.chapters.length;
       console.log(`amount chapters: ${amountChapters}`);
@@ -49,6 +49,10 @@ export class BookComponent implements OnInit, OnDestroy {
       this.exportCommandSubscription = this.fileService.exportCommand.subscribe(() => {
         console.log('book component received export command');
         this.fileService.exportSelection(this.getSelectedChaptersStudyWords());
+      });
+      this.exportIgnoredCommandSubscription = this.fileService.exportIgnoredCommand.subscribe(() => {
+        console.log('book component received export-ignored command');
+        this.fileService.exportIgnored(this.getAllIgnoredWords());
       });
     }
   }
@@ -79,6 +83,14 @@ export class BookComponent implements OnInit, OnDestroy {
     return words;
   }
 
+  getAllIgnoredWords(): string[] {
+    const words = new Array<string>();
+    for (const chapter of this.chapters) {
+      words.push(...chapter.words_ignore)
+    }
+    return words;
+  }
+
   unselectChapters(indices: Set<number>): void {
     for (const index of indices) {
       this.chapterIsSelected[index] = false;
@@ -94,8 +106,7 @@ export class BookComponent implements OnInit, OnDestroy {
     if (!shiftPressed) {
       this.unselectChapters(this.selected);
       this.selected = new Set();
-    }
-    else if (this.selected.size > 0) {
+    } else if (this.selected.size > 0) {
       // select all elements between including clicked one
       let j = this.selected.values().next().value;
       while (j < index) {
@@ -130,7 +141,7 @@ export class BookComponent implements OnInit, OnDestroy {
     if (chapter.words.length > 0) {
       console.log(`go to chapter: ${chapter.title}`);
       console.log(`chapter has ${chapter.words.length} words`);
-      this.router.navigate(['/filter'], { state: { data: chapter } });
+      this.router.navigate(['/filter'], {state: {data: chapter}});
     }
   }
 

@@ -1,6 +1,6 @@
-import { App, BrowserWindow, MenuItem, MenuItemConstructorOptions } from 'electron';
-import { getFileFromUser } from './utils';
-import { ngCmdExport } from './ng-ipc';
+import {App, BrowserWindow, MenuItem, MenuItemConstructorOptions} from 'electron';
+import {getFileFromUser} from './utils';
+import {ngCmdExport, ngCmdExportIgnored} from './ng-ipc';
 
 
 export function getMenuTemplate(isMac: boolean, app: App, win: BrowserWindow): Array<(MenuItemConstructorOptions) | (MenuItem)> {
@@ -34,6 +34,13 @@ export function getMenuTemplate(isMac: boolean, app: App, win: BrowserWindow): A
           accelerator: 'CommandOrControl+E',
           click(): void {
             ngCmdExport(win);
+          }
+        },
+        {
+          label: 'Export all ignored',
+          accelerator: 'CommandOrControl+I',
+          click(): void {
+            ngCmdExportIgnored(win);
           }
         }
       ]

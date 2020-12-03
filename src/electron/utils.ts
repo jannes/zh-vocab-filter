@@ -1,5 +1,5 @@
-import { app, BrowserWindow, dialog } from 'electron';
-import { BookData, BookDataFiltered } from '../shared/bookData';
+import {app, BrowserWindow, dialog} from 'electron';
+import {BookData, BookDataFiltered} from '../shared/bookData';
 import * as fs from 'fs';
 
 
@@ -23,7 +23,7 @@ export function getFileFromUser(win: BrowserWindow): void {
   const filesPromise = dialog.showOpenDialog(win, {
     properties: ['openFile'],
     filters: [
-      { name: 'JSON Files', extensions: ['json'] }
+      {name: 'JSON Files', extensions: ['json']}
     ]
   });
   filesPromise.then((dialogReturn) => {
@@ -39,8 +39,7 @@ export function getFileFromUser(win: BrowserWindow): void {
       let bookData = null;
       if ('words_study' in parsed.vocabulary[0]) {
         bookData = parsed as BookDataFiltered;
-      }
-      else {
+      } else {
         bookData = firstOpenSetup(filepath, parsed as BookData);
         saveOverwrite(filepath, bookData);
       }
@@ -55,8 +54,7 @@ export function getFileFromUser(win: BrowserWindow): void {
 export function userSaveExport(words: string[]): void {
   if (words.length === 0) {
     dialog.showErrorBox('Save error', 'no chapter selected or selected chapters have no words to study');
-  }
-  else {
+  } else {
     const options = {
       title: 'Save words to study from selected chapters',
       button: 'Save',
@@ -69,8 +67,29 @@ export function userSaveExport(words: string[]): void {
           return saveExport(result.filePath, words);
         }
       }).catch((error) => {
-        dialog.showErrorBox('Save error', `could not save file, error: ${error}`);
-      });
+      dialog.showErrorBox('Save error', `could not save file, error: ${error}`);
+    });
+  }
+}
+
+export function userSaveIgnored(words: string[]): void {
+  if (words.length === 0) {
+    dialog.showErrorBox('Save error', 'no words ignored so far');
+  } else {
+    const options = {
+      title: 'Save all ignored words',
+      button: 'Save',
+      defaultPath: '/Users/jannes/Nextcloud/中文/untitled',
+      properties: ['createDirectory' as const]
+    };
+    dialog.showSaveDialog(options)
+      .then((result) => {
+        if (!result.canceled) {
+          return saveExport(result.filePath, words);
+        }
+      }).catch((error) => {
+      dialog.showErrorBox('Save error', `could not save file, error: ${error}`);
+    });
   }
 }
 
