@@ -5,8 +5,13 @@ A desktop app for quickly filtering word lists, categorizing words as:
 - not to study
 - always ignore
 
-Words to study and words to ignore can be saved in two different files 
-in the same directory as the original word list file.
+I use this app to create vocabulary lists for books I want to read.
+A json file with per chapter vocabulary is used as input,
+all filter information is saved in the same file.
+
+Filtered vocabulary (words to study) can be exported as text file,
+per chapter or for a selection of multiple chapters.
+One can also export all ignored words for bookkeeping.
 
 ## Usage example
 ![usage-gif](./zh-vocab-filter.gif)
